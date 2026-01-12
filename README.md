@@ -1,4 +1,4 @@
-# Claude Usage Bar
+# Claude Code Usage Bar
 
 [![macOS](https://img.shields.io/badge/macOS-13.0%2B-blue?logo=apple)](https://www.apple.com/macos/)
 [![Swift](https://img.shields.io/badge/Swift-5.0-orange?logo=swift)](https://swift.org/)
@@ -9,24 +9,51 @@
 A beautiful macOS menu bar app that displays your **Claude Code** usage statistics in real-time. Monitor your session and weekly limits at a glance with a stunning glassmorphic UI.
 
 <p align="center">
-  <img src="screenshot.png" alt="Claude Usage Bar Screenshot" width="400">
+  <img src="screenshot.png" alt="Claude Code Usage Bar Screenshot" width="400">
 </p>
 
 ## Features
 
 - **Real-time Usage Tracking** - See your current session and weekly usage percentages directly in the menu bar
-- **Glassmorphic UI** - Beautiful, modern popup with gradient progress bars
-- **Auto-refresh** - Automatically updates every 60 seconds
+- **Dynamic Color Indicators** - Progress bars change from green to yellow to red based on usage
+- **Glassmorphic UI** - Beautiful, modern popup with gradient progress bars and glow effects
+- **Configurable Auto-refresh** - Set refresh interval from 30 seconds to 10 minutes (or disable)
+- **Settings Panel** - Customize refresh behavior through the built-in settings
 - **Multiple Model Support** - Tracks usage for all models and Sonnet-specific limits
 - **Reset Time Display** - Know exactly when your limits reset
 - **Native macOS App** - Built with SwiftUI for optimal performance
+- **Zero Token Usage** - Only queries account stats, never uses API tokens
 
 ## Requirements
 
-- **macOS 13.0** (Ventura) or later
-- **Claude Code CLI** - [Install from claude.ai/code](https://claude.ai/code)
-- **Python 3.6+** (comes pre-installed on macOS)
-- **Claude Pro/Max subscription** (for usage limits to track)
+### System Requirements
+
+| Requirement | Version | Notes |
+|-------------|---------|-------|
+| **macOS** | 13.0 (Ventura) or later | Required for SwiftUI features |
+| **Python** | 3.6+ | Usually pre-installed on macOS |
+| **Xcode** | 14.0+ | Only needed if building from source |
+
+### Claude Requirements
+
+| Requirement | Description |
+|-------------|-------------|
+| **Claude Code CLI** | Must be installed and accessible. [Install from claude.ai/code](https://claude.ai/code) |
+| **Claude Pro/Max** | Active subscription required (usage limits only apply to paid plans) |
+| **Authenticated** | Must be logged into Claude Code CLI (`claude` command should work) |
+
+### Verify Requirements
+
+```bash
+# Check Python version
+python3 --version
+
+# Check if Claude CLI is installed
+which claude
+
+# Test Claude CLI is working
+claude --version
+```
 
 ## Installation
 
@@ -34,13 +61,13 @@ A beautiful macOS menu bar app that displays your **Claude Code** usage statisti
 
 1. Download the latest `.app` from [Releases](../../releases)
 2. Move `ClaudeUsageBar.app` to your Applications folder
-3. Open the app (you may need to right-click → Open the first time)
+3. Open the app (you may need to right-click → Open the first time due to Gatekeeper)
 
 ### Option 2: Build from Source
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/claude-usage-bar.git
+   git clone https://github.com/JohnDimou/claude-usage-bar.git
    cd claude-usage-bar
    ```
 
@@ -56,34 +83,55 @@ Or build from command line:
 xcodebuild -project ClaudeUsageBar.xcodeproj -scheme ClaudeUsageBar -configuration Release build
 ```
 
+The built app will be in `~/Library/Developer/Xcode/DerivedData/ClaudeUsageBar-*/Build/Products/Release/`
+
 ## Usage
 
-1. **Launch the app** - A brain icon appears in your menu bar
-2. **View quick stats** - The menu bar shows `🧠 X% | Y%` (session | weekly)
-3. **Click for details** - Opens a popup with full usage information:
-   - Current session usage with reset time
-   - Weekly limit (all models) with reset date
-   - Sonnet-specific usage (if applicable)
+1. **Launch the app** - A brain icon appears in your menu bar with usage percentages
+2. **View quick stats** - The menu bar shows session and weekly usage
+3. **Click for details** - Opens a popup with full usage information
+4. **Configure settings** - Click the gear icon to adjust refresh interval
 
 ### Menu Bar Display
 
 ```
-🧠 19% | 22%
+🧠 25% | 22%
    ↑      ↑
    │      └── Weekly usage (all models)
    └── Current session usage
 ```
 
+### Color Indicators
+
+| Usage Level | Color | Meaning |
+|-------------|-------|---------|
+| 0-50% | Green | Plenty of capacity remaining |
+| 50-75% | Yellow/Orange | Moderate usage |
+| 75-100% | Red | Near or at limit |
+
+## Settings
+
+Access settings by clicking the gear icon in the popup:
+
+| Setting | Options | Default | Description |
+|---------|---------|---------|-------------|
+| Refresh Interval | 30s, 1m, 2m, 5m, 10m, Never | 1 minute | How often to auto-fetch usage data |
+| Refresh on Open | On/Off | On | Fetch fresh data when popup opens |
+
+Settings are persisted and remembered between app restarts.
+
 ## How It Works
 
 The app uses a Python script to interact with the Claude Code CLI:
 
-1. Spawns Claude CLI in an interactive pseudo-terminal
-2. Sends the `/usage` command
+1. Spawns Claude CLI in an interactive pseudo-terminal (pty)
+2. Sends the `/usage` slash command
 3. Parses the terminal output to extract usage data
 4. Displays the results in a native SwiftUI interface
 
-This approach ensures compatibility with Claude's interactive features while providing a seamless native experience.
+### Important: No Token Usage
+
+**This app does NOT consume any Claude API tokens.** The `/usage` command is a built-in CLI feature that queries your account statistics directly from Anthropic's servers - it does not invoke any AI model. It's equivalent to checking your usage on the Anthropic dashboard.
 
 ## Project Structure
 
@@ -91,41 +139,64 @@ This approach ensures compatibility with Claude's interactive features while pro
 claude-usage-bar/
 ├── ClaudeUsageBar/
 │   ├── ClaudeUsageBarApp.swift    # App entry point & menu bar setup
-│   ├── UsageManager.swift          # Usage data fetching & parsing
-│   ├── UsagePopoverView.swift      # SwiftUI popup interface
+│   ├── UsageManager.swift          # Usage data fetching, parsing & settings
+│   ├── UsagePopoverView.swift      # SwiftUI popup interface & settings panel
 │   └── Info.plist                  # App configuration
 ├── get_claude_usage.py             # Python script for CLI interaction
 ├── ClaudeUsageBar.xcodeproj/       # Xcode project
+├── screenshot.png                  # App screenshot
+├── LICENSE                         # MIT License
 └── README.md
 ```
-
-## Configuration
-
-The app uses sensible defaults, but you can modify these in the source:
-
-| Setting | Location | Default | Description |
-|---------|----------|---------|-------------|
-| Refresh Interval | `ClaudeUsageBarApp.swift` | 60 seconds | How often to fetch new data |
-| Popover Size | `ClaudeUsageBarApp.swift` | 360×400 | Size of the detail popup |
 
 ## Troubleshooting
 
 ### "Claude CLI not found"
-- Ensure Claude Code is installed: `which claude`
-- If using nvm, the app searches common paths automatically
+```bash
+# Check if Claude is installed
+which claude
+
+# If not found, install from:
+# https://claude.ai/code
+
+# If installed but not found, it might be in a non-standard path
+# The app checks these locations automatically:
+# - /usr/local/bin/claude
+# - /opt/homebrew/bin/claude
+# - ~/.local/bin/claude
+# - ~/.npm-global/bin/claude
+```
 
 ### "Python 3 not found"
-- macOS should have Python 3 pre-installed
-- Check with: `python3 --version`
+```bash
+# Check Python version
+python3 --version
+
+# If not installed, install via Homebrew:
+brew install python3
+```
 
 ### Usage not updating
-- Click the refresh button in the popup
+- Click the refresh button (circular arrow) in the popup
+- Check Settings → ensure refresh interval isn't set to "Never"
 - Ensure you have an active Claude Pro/Max subscription
-- Check that `claude` works in your terminal
+- Verify `claude` works in your terminal
 
 ### App won't open (macOS security)
 - Right-click the app → Open → Open
 - Or: System Settings → Privacy & Security → Open Anyway
+
+### Usage shows 0% for everything
+- Make sure you're logged into Claude Code CLI
+- Run `claude` in terminal and verify it works
+- Check that you have a Pro/Max subscription
+
+## Privacy & Security
+
+- **Local Only** - All data stays on your machine
+- **No External Servers** - The app only communicates with the local Claude CLI
+- **No Tracking** - No analytics or telemetry
+- **Open Source** - Full source code available for review
 
 ## Contributing
 
@@ -150,5 +221,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 <p align="center">
-  Made with ❤️ and Claude Code
+  Made with Claude Code
 </p>
