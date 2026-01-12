@@ -199,9 +199,9 @@ struct UsagePopoverView: View {
             title: "Current Session",
             percentage: usage.sessionPercentage,
             resetText: usage.sessionReset.isEmpty ? nil : "Resets \(usage.sessionReset)",
-            gradient: [Color(hex: "667eea"), Color(hex: "764ba2")],
+            gradient: [Color(hex: "8b5cf6"), Color(hex: "a855f7")],
             icon: "clock.fill",
-            iconBackground: [Color(hex: "667eea").opacity(0.2), Color(hex: "764ba2").opacity(0.2)]
+            iconBackground: [Color(hex: "8b5cf6").opacity(0.25), Color(hex: "a855f7").opacity(0.25)]
         )
     }
 
