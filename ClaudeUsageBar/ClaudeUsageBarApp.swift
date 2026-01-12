@@ -1,0 +1,168 @@
+//
+//  ClaudeUsageBarApp.swift
+//  ClaudeUsageBar
+//
+//  A macOS menu bar app that displays Claude Code usage statistics.
+//  Shows session and weekly usage percentages in the status bar,
+//  with a detailed glassmorphic popup on click.
+//
+//  Requirements:
+//  - macOS 13.0+
+//  - Claude Code CLI installed (https://claude.ai/code)
+//  - Python 3 (comes with macOS)
+//
+//  Created with Claude Code
+//  License: MIT
+//
+
+import SwiftUI
+import AppKit
+
+// MARK: - App Entry Point
+
+@main
+struct ClaudeUsageBarApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
+    var body: some Scene {
+        Settings {
+            EmptyView()
+        }
+    }
+}
+
+// MARK: - App Delegate
+
+/// Manages the menu bar status item and popover
+class AppDelegate: NSObject, NSApplicationDelegate {
+
+    // MARK: Properties
+
+    /// The status bar item displayed in the menu bar
+    var statusItem: NSStatusItem!
+
+    /// The popover that shows detailed usage information
+    var popover: NSPopover!
+
+    /// Shared usage manager instance
+    var usageManager = UsageManager.shared
+
+    /// Timer for auto-refreshing usage data
+    var timer: Timer?
+
+    /// Refresh interval in seconds (default: 60 seconds)
+    let refreshInterval: TimeInterval = 60.0
+
+    // MARK: - App Lifecycle
+
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        // Hide dock icon - this is a menu bar only app
+        NSApp.setActivationPolicy(.accessory)
+
+        setupStatusItem()
+        setupPopover()
+        setupAutoRefresh()
+
+        // Initial fetch
+        usageManager.fetchUsage()
+
+        // Observe usage changes to update the status bar
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(usageDidUpdate),
+            name: .usageDidUpdate,
+            object: nil
+        )
+    }
+
+    // MARK: - Setup Methods
+
+    /// Creates and configures the status bar item
+    private func setupStatusItem() {
+        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+
+        if let button = statusItem.button {
+            button.action = #selector(togglePopover)
+            button.target = self
+            updateStatusButton()
+        }
+    }
+
+    /// Creates and configures the popover
+    private func setupPopover() {
+        popover = NSPopover()
+        popover.contentSize = NSSize(width: 360, height: 400)
+        popover.behavior = .transient
+        popover.animates = true
+        popover.contentViewController = NSHostingController(rootView: UsagePopoverView())
+    }
+
+    /// Sets up the auto-refresh timer
+    private func setupAutoRefresh() {
+        timer = Timer.scheduledTimer(withTimeInterval: refreshInterval, repeats: true) { [weak self] _ in
+            self?.usageManager.fetchUsage()
+        }
+    }
+
+    // MARK: - Actions
+
+    /// Called when usage data is updated
+    @objc func usageDidUpdate() {
+        DispatchQueue.main.async {
+            self.updateStatusButton()
+        }
+    }
+
+    /// Updates the status bar button with current usage percentages
+    func updateStatusButton() {
+        guard let button = statusItem.button else { return }
+
+        let usage = usageManager.currentUsage
+        let sessionPercent = usage?.sessionPercentage ?? 0
+        let weeklyPercent = usage?.weeklyPercentage ?? 0
+
+        // Create icon
+        let attachment = NSTextAttachment()
+        if let image = NSImage(systemSymbolName: "brain.head.profile", accessibilityDescription: "Claude") {
+            let config = NSImage.SymbolConfiguration(pointSize: 12, weight: .medium)
+            attachment.image = image.withSymbolConfiguration(config)
+        }
+
+        // Build attributed string: icon + percentages
+        let iconString = NSAttributedString(attachment: attachment)
+        let textString = NSAttributedString(
+            string: " \(Int(sessionPercent))% | \(Int(weeklyPercent))%",
+            attributes: [
+                .font: NSFont.monospacedDigitSystemFont(ofSize: 12, weight: .medium),
+                .foregroundColor: NSColor.labelColor
+            ]
+        )
+
+        let combined = NSMutableAttributedString()
+        combined.append(iconString)
+        combined.append(textString)
+
+        button.attributedTitle = combined
+    }
+
+    /// Toggles the popover visibility
+    @objc func togglePopover() {
+        if let button = statusItem.button {
+            if popover.isShown {
+                popover.performClose(nil)
+            } else {
+                // Refresh data when opening
+                usageManager.fetchUsage()
+                popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+                popover.contentViewController?.view.window?.makeKey()
+            }
+        }
+    }
+}
+
+// MARK: - Notification Names
+
+extension Notification.Name {
+    /// Posted when usage data has been updated
+    static let usageDidUpdate = Notification.Name("usageDidUpdate")
+}
