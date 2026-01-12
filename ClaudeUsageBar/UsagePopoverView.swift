@@ -5,7 +5,7 @@
 //  The main popup view displaying Claude usage statistics
 //  with a modern glassmorphic design and dark mode support.
 //
-//  Created with Claude Code
+//  Author: John Dimou - OptimalVersion.io
 //  License: MIT
 //
 
@@ -130,53 +130,29 @@ struct UsagePopoverView: View {
 
     var headerView: some View {
         HStack(alignment: .center) {
-            HStack(spacing: 12) {
-                // Animated glowing icon
+            HStack(spacing: 10) {
+                // Neutral colored icon
                 ZStack {
-                    // Outer glow
                     Circle()
-                        .fill(
-                            RadialGradient(
-                                colors: [Color(hex: "8b5cf6").opacity(0.6), Color.clear],
-                                center: .center,
-                                startRadius: 5,
-                                endRadius: 35
-                            )
-                        )
-                        .frame(width: 60, height: 60)
-                        .blur(radius: 8)
-
-                    // Inner circle
-                    Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: [Color(hex: "8b5cf6"), Color(hex: "6366f1")],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .frame(width: 46, height: 46)
-                        .shadow(color: Color(hex: "8b5cf6").opacity(0.5), radius: 8, x: 0, y: 4)
+                        .fill(Color.primary.opacity(0.08))
+                        .frame(width: 38, height: 38)
 
                     Image(systemName: "brain.head.profile")
-                        .font(.system(size: 24, weight: .bold))
-                        .foregroundColor(.white)
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(.primary.opacity(0.7))
                 }
 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 1) {
                     Text("Claude Code Usage")
-                        .font(.system(size: 18, weight: .bold))
+                        .font(.system(size: 15, weight: .bold))
                         .foregroundColor(.primary)
 
                     HStack(spacing: 4) {
                         Circle()
-                            .fill(
-                                LinearGradient(colors: [Color(hex: "10b981"), Color(hex: "34d399")], startPoint: .top, endPoint: .bottom)
-                            )
-                            .frame(width: 8, height: 8)
-                            .shadow(color: Color(hex: "10b981").opacity(0.5), radius: 3)
+                            .fill(Color.green)
+                            .frame(width: 6, height: 6)
                         Text("Claude Max")
-                            .font(.system(size: 11, weight: .semibold))
+                            .font(.system(size: 10, weight: .medium))
                             .foregroundColor(.secondary)
                     }
                 }
@@ -184,30 +160,26 @@ struct UsagePopoverView: View {
 
             Spacer()
 
-            HStack(spacing: 8) {
+            HStack(spacing: 6) {
                 // Settings button
                 Button(action: { showingSettings = true }) {
                     Image(systemName: "gearshape.fill")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(
-                            LinearGradient(colors: [.gray, .secondary], startPoint: .top, endPoint: .bottom)
-                        )
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.secondary)
                 }
                 .buttonStyle(.plain)
-                .padding(8)
+                .padding(6)
                 .background(Color.primary.opacity(0.05))
                 .clipShape(Circle())
 
                 // Info button
                 Button(action: { showingInfo = true }) {
-                    Image(systemName: "info.circle.fill")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(
-                            LinearGradient(colors: [.blue, .cyan], startPoint: .top, endPoint: .bottom)
-                        )
+                    Image(systemName: "info.circle")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.secondary)
                 }
                 .buttonStyle(.plain)
-                .padding(8)
+                .padding(6)
                 .background(Color.primary.opacity(0.05))
                 .clipShape(Circle())
 
@@ -216,7 +188,7 @@ struct UsagePopoverView: View {
                     RefreshIcon(isLoading: usageManager.isLoading)
                 }
                 .buttonStyle(.plain)
-                .padding(8)
+                .padding(6)
                 .background(Color.primary.opacity(0.05))
                 .clipShape(Circle())
             }
@@ -322,21 +294,7 @@ struct UsagePopoverView: View {
 
     var loadingView: some View {
         VStack(spacing: 20) {
-            ZStack {
-                Circle()
-                    .stroke(Color.purple.opacity(0.2), lineWidth: 4)
-                    .frame(width: 60, height: 60)
-
-                Circle()
-                    .trim(from: 0, to: 0.7)
-                    .stroke(
-                        LinearGradient(colors: [.purple, .blue], startPoint: .leading, endPoint: .trailing),
-                        style: StrokeStyle(lineWidth: 4, lineCap: .round)
-                    )
-                    .frame(width: 60, height: 60)
-                    .rotationEffect(.degrees(-90))
-                    .animation(.linear(duration: 1).repeatForever(autoreverses: false), value: usageManager.isLoading)
-            }
+            LoadingSpinner()
 
             VStack(spacing: 6) {
                 Text("Fetching Usage Data")
@@ -439,34 +397,54 @@ struct UsagePopoverView: View {
     // MARK: - Footer
 
     var footerView: some View {
-        HStack {
-            if let usage = usageManager.currentUsage {
-                HStack(spacing: 4) {
-                    Circle()
-                        .fill(Color.green)
-                        .frame(width: 6, height: 6)
-                    Text("Updated \(usage.lastUpdated.formatted(.relative(presentation: .named)))")
-                        .font(.system(size: 11))
-                        .foregroundColor(.secondary)
+        VStack(spacing: 10) {
+            // Star on GitHub button
+            Button(action: {
+                if let url = URL(string: "https://github.com/JohnDimou/claude-usage-bar") {
+                    NSWorkspace.shared.open(url)
                 }
-            }
-
-            Spacer()
-
-            Button(action: { NSApplication.shared.terminate(nil) }) {
-                HStack(spacing: 4) {
-                    Image(systemName: "power")
-                        .font(.system(size: 10))
-                    Text("Quit")
-                        .font(.system(size: 11))
+            }) {
+                HStack(spacing: 6) {
+                    Text("Star on GitHub")
+                        .font(.system(size: 11, weight: .medium))
                 }
                 .foregroundColor(.secondary)
             }
             .buttonStyle(.plain)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 5)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
             .background(Color.primary.opacity(0.05))
             .clipShape(Capsule())
+
+            HStack {
+                if let usage = usageManager.currentUsage {
+                    HStack(spacing: 4) {
+                        Circle()
+                            .fill(Color.green)
+                            .frame(width: 6, height: 6)
+                        Text("Updated \(usage.lastUpdated.formatted(.relative(presentation: .named)))")
+                            .font(.system(size: 10))
+                            .foregroundColor(.secondary)
+                    }
+                }
+
+                Spacer()
+
+                Button(action: { NSApplication.shared.terminate(nil) }) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "power")
+                            .font(.system(size: 9))
+                        Text("Quit")
+                            .font(.system(size: 10))
+                    }
+                    .foregroundColor(.secondary)
+                }
+                .buttonStyle(.plain)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+                .background(Color.primary.opacity(0.05))
+                .clipShape(Capsule())
+            }
         }
     }
 }
@@ -642,9 +620,9 @@ struct InfoDetailView: View {
                         // Links
                         InfoSection(title: "Links", icon: "link") {
                             VStack(alignment: .leading, spacing: 8) {
-                                LinkRow(title: "Claude Code", url: "https://claude.ai/code", icon: "brain.head.profile")
-                                LinkRow(title: "GitHub Repository", url: "https://github.com", icon: "chevron.left.forwardslash.chevron.right")
-                                LinkRow(title: "Report Issue", url: "https://github.com", icon: "exclamationmark.bubble")
+                                LinkRow(title: "GitHub Repository", url: "https://github.com/JohnDimou/claude-usage-bar", icon: "star.fill")
+                                LinkRow(title: "Report Issue", url: "https://github.com/JohnDimou/claude-usage-bar/issues", icon: "exclamationmark.bubble")
+                                LinkRow(title: "OptimalVersion.io", url: "https://optimalversion.io", icon: "globe")
                             }
                         }
 
@@ -652,12 +630,12 @@ struct InfoDetailView: View {
                         HStack {
                             Spacer()
                             VStack(spacing: 4) {
-                                Text("Built with Claude Code")
-                                    .font(.system(size: 11, weight: .medium))
-                                    .foregroundColor(.secondary)
-                                Text("Made with ❤️")
+                                Text("John Dimou")
+                                    .font(.system(size: 11, weight: .semibold))
+                                    .foregroundColor(.primary)
+                                Text("OptimalVersion.io")
                                     .font(.system(size: 10))
-                                    .foregroundColor(.secondary.opacity(0.7))
+                                    .foregroundColor(.secondary)
                             }
                             Spacer()
                         }
@@ -972,6 +950,34 @@ struct LinkRow: View {
     }
 }
 
+// MARK: - Loading Spinner
+
+struct LoadingSpinner: View {
+    @State private var rotation: Double = 0
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .stroke(Color.primary.opacity(0.1), lineWidth: 4)
+                .frame(width: 50, height: 50)
+
+            Circle()
+                .trim(from: 0, to: 0.7)
+                .stroke(
+                    LinearGradient(colors: [Color(hex: "10b981"), Color(hex: "34d399")], startPoint: .leading, endPoint: .trailing),
+                    style: StrokeStyle(lineWidth: 4, lineCap: .round)
+                )
+                .frame(width: 50, height: 50)
+                .rotationEffect(.degrees(rotation))
+        }
+        .onAppear {
+            withAnimation(.linear(duration: 1).repeatForever(autoreverses: false)) {
+                rotation = 360
+            }
+        }
+    }
+}
+
 // MARK: - Refresh Icon
 
 struct RefreshIcon: View {
@@ -980,7 +986,7 @@ struct RefreshIcon: View {
 
     var body: some View {
         Image(systemName: "arrow.clockwise")
-            .font(.system(size: 14, weight: .medium))
+            .font(.system(size: 12, weight: .medium))
             .foregroundColor(.secondary)
             .rotationEffect(.degrees(rotation))
             .onChange(of: isLoading) { newValue in

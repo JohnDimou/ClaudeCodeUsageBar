@@ -11,7 +11,7 @@
 //  - Claude Code CLI installed (https://claude.ai/code)
 //  - Python 3 (comes with macOS)
 //
-//  Created with Claude Code
+//  Author: John Dimou - OptimalVersion.io
 //  License: MIT
 //
 

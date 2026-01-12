@@ -4,7 +4,7 @@
 [![Swift](https://img.shields.io/badge/Swift-5.0-orange?logo=swift)](https://swift.org/)
 [![Python](https://img.shields.io/badge/Python-3.6%2B-blue?logo=python)](https://www.python.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Claude Code](https://img.shields.io/badge/Built%20with-Claude%20Code-blueviolet)](https://claude.ai/code)
+[![Author](https://img.shields.io/badge/Author-John%20Dimou-blueviolet)](https://optimalversion.io)
 
 A beautiful macOS menu bar app that displays your **Claude Code** usage statistics in real-time. Monitor your session and weekly limits at a glance with a stunning glassmorphic UI.
 
@@ -212,14 +212,17 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## Author
+
+**John Dimou** - [OptimalVersion.io](https://optimalversion.io)
+
 ## Acknowledgments
 
-- Built entirely with [Claude Code](https://claude.ai/code)
 - Inspired by the need to track Claude usage without constantly running `/usage`
 - Thanks to the Claude team for the amazing CLI tool
 
 ---
 
 <p align="center">
-  Made with Claude Code
+  Made by <a href="https://optimalversion.io">John Dimou - OptimalVersion.io</a>
 </p>

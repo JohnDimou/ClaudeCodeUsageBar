@@ -23,7 +23,7 @@ Usage:
     python3 get_claude_usage.py
 
 License: MIT
-Created with Claude Code
+Author: John Dimou - OptimalVersion.io
 """
 
 import subprocess

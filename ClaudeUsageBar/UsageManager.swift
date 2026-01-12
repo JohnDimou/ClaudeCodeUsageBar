@@ -6,7 +6,7 @@
 //  Runs the bundled Python script that interacts with Claude CLI
 //  to retrieve current session and weekly usage statistics.
 //
-//  Created with Claude Code
+//  Author: John Dimou - OptimalVersion.io
 //  License: MIT
 //
 

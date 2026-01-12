@@ -7,15 +7,15 @@
     <key>CFBundleExecutable</key>
     <string>ClaudeUsageBar</string>
     <key>CFBundleIdentifier</key>
-    <string>com.claude.usagebar</string>
+    <string>io.optimalversion.claudeusagebar</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
-    <string>Claude Usage Bar</string>
+    <string>Claude Code Usage Bar</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.0</string>
+    <string>1.0.0</string>
     <key>CFBundleVersion</key>
     <string>1</string>
     <key>LSMinimumSystemVersion</key>
@@ -26,5 +26,18 @@
     <true/>
     <key>NSMainStoryboardFile</key>
     <string></string>
+    <key>NSHumanReadableCopyright</key>
+    <string>Copyright 2025 John Dimou - OptimalVersion.io. All rights reserved.</string>
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLName</key>
+            <string>GitHub Repository</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>https</string>
+            </array>
+        </dict>
+    </array>
 </dict>
 </plist>
