@@ -80,7 +80,7 @@ struct UsagePopoverView: View {
                     Circle()
                         .fill(
                             RadialGradient(
-                                colors: [Color.purple.opacity(0.4), Color.clear],
+                                colors: [Color.purple.opacity(0.15), Color.clear],
                                 center: .center,
                                 startRadius: 0,
                                 endRadius: 150
@@ -94,7 +94,7 @@ struct UsagePopoverView: View {
                     Circle()
                         .fill(
                             RadialGradient(
-                                colors: [Color.blue.opacity(0.35), Color.clear],
+                                colors: [Color.blue.opacity(0.12), Color.clear],
                                 center: .center,
                                 startRadius: 0,
                                 endRadius: 150
@@ -108,7 +108,7 @@ struct UsagePopoverView: View {
                     Circle()
                         .fill(
                             RadialGradient(
-                                colors: [Color.cyan.opacity(0.3), Color.clear],
+                                colors: [Color.cyan.opacity(0.1), Color.clear],
                                 center: .center,
                                 startRadius: 0,
                                 endRadius: 100
