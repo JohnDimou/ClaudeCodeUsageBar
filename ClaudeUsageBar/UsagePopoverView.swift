@@ -194,36 +194,52 @@ struct UsagePopoverView: View {
 
     // MARK: - Usage Cards
 
+    func usageGradient(for percentage: Double) -> [Color] {
+        if percentage < 50 {
+            // Green
+            return [Color(hex: "10b981"), Color(hex: "34d399")]
+        } else if percentage < 75 {
+            // Yellow/Orange
+            return [Color(hex: "f59e0b"), Color(hex: "fbbf24")]
+        } else {
+            // Red
+            return [Color(hex: "ef4444"), Color(hex: "f87171")]
+        }
+    }
+
     func sessionCard(_ usage: ClaudeUsage) -> some View {
-        EnhancedUsageCard(
+        let gradient = usageGradient(for: usage.sessionPercentage)
+        return EnhancedUsageCard(
             title: "Current Session",
             percentage: usage.sessionPercentage,
             resetText: usage.sessionReset.isEmpty ? nil : "Resets \(usage.sessionReset)",
-            gradient: [Color(hex: "8b5cf6"), Color(hex: "a855f7")],
+            gradient: gradient,
             icon: "clock.fill",
-            iconBackground: [Color(hex: "8b5cf6").opacity(0.25), Color(hex: "a855f7").opacity(0.25)]
+            iconBackground: [gradient[0].opacity(0.25), gradient[1].opacity(0.25)]
         )
     }
 
     func weeklyCard(_ usage: ClaudeUsage) -> some View {
-        EnhancedUsageCard(
+        let gradient = usageGradient(for: usage.weeklyPercentage)
+        return EnhancedUsageCard(
             title: "Weekly Limit (All Models)",
             percentage: usage.weeklyPercentage,
             resetText: usage.weeklyReset.isEmpty ? nil : "Resets \(usage.weeklyReset)",
-            gradient: [Color(hex: "11998e"), Color(hex: "38ef7d")],
+            gradient: gradient,
             icon: "calendar",
-            iconBackground: [Color(hex: "11998e").opacity(0.2), Color(hex: "38ef7d").opacity(0.2)]
+            iconBackground: [gradient[0].opacity(0.25), gradient[1].opacity(0.25)]
         )
     }
 
     func sonnetCard(_ usage: ClaudeUsage) -> some View {
-        EnhancedUsageCard(
+        let gradient = usageGradient(for: usage.sonnetPercentage)
+        return EnhancedUsageCard(
             title: "Weekly (Sonnet Only)",
             percentage: usage.sonnetPercentage,
             resetText: nil,
-            gradient: [Color(hex: "fc4a1a"), Color(hex: "f7b733")],
+            gradient: gradient,
             icon: "sparkles",
-            iconBackground: [Color(hex: "fc4a1a").opacity(0.2), Color(hex: "f7b733").opacity(0.2)]
+            iconBackground: [gradient[0].opacity(0.25), gradient[1].opacity(0.25)]
         )
     }
 
