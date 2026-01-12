@@ -11,6 +11,7 @@
 //
 
 import Foundation
+import ServiceManagement
 
 // MARK: - Data Models
 
@@ -54,6 +55,7 @@ struct UsageJSON: Codable {
 enum SettingsKey {
     static let refreshInterval = "refreshInterval"
     static let refreshOnOpen = "refreshOnOpen"
+    static let launchAtLogin = "launchAtLogin"
 }
 
 // MARK: - Usage Manager
@@ -92,6 +94,14 @@ class UsageManager: ObservableObject {
         }
     }
 
+    /// Whether to launch at login
+    @Published var launchAtLogin: Bool {
+        didSet {
+            UserDefaults.standard.set(launchAtLogin, forKey: SettingsKey.launchAtLogin)
+            updateLaunchAtLogin()
+        }
+    }
+
     // MARK: Configuration
 
     /// Name of the Python script bundled in the app
@@ -121,6 +131,25 @@ class UsageManager: ObservableObject {
             defaults.set(true, forKey: SettingsKey.refreshOnOpen)
         }
         self.refreshOnOpen = defaults.bool(forKey: SettingsKey.refreshOnOpen)
+
+        // Default launch at login: false
+        if defaults.object(forKey: SettingsKey.launchAtLogin) == nil {
+            defaults.set(false, forKey: SettingsKey.launchAtLogin)
+        }
+        self.launchAtLogin = defaults.bool(forKey: SettingsKey.launchAtLogin)
+    }
+
+    /// Updates the system launch at login setting
+    private func updateLaunchAtLogin() {
+        do {
+            if launchAtLogin {
+                try SMAppService.mainApp.register()
+            } else {
+                try SMAppService.mainApp.unregister()
+            }
+        } catch {
+            print("Failed to update launch at login: \(error)")
+        }
     }
 
     // MARK: - Public Methods

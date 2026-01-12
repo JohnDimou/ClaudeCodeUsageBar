@@ -655,6 +655,7 @@ struct InfoDetailView: View {
 
 struct SettingsView: View {
     @Environment(\.dismiss) var dismiss
+    @Environment(\.colorScheme) var colorScheme
     @ObservedObject var usageManager = UsageManager.shared
 
     let intervalOptions: [(String, Double)] = [
@@ -668,14 +669,26 @@ struct SettingsView: View {
 
     var body: some View {
         ZStack {
-            VisualEffectBlur(material: .hudWindow, blendingMode: .behindWindow)
-                .ignoresSafeArea()
+            // Dark background matching main view
+            settingsBackground
 
             VStack(spacing: 0) {
                 // Header
                 HStack {
-                    Text("Settings")
-                        .font(.system(size: 18, weight: .bold))
+                    HStack(spacing: 10) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.primary.opacity(0.08))
+                                .frame(width: 36, height: 36)
+
+                            Image(systemName: "gearshape.fill")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.primary.opacity(0.7))
+                        }
+
+                        Text("Settings")
+                            .font(.system(size: 17, weight: .bold))
+                    }
 
                     Spacer()
 
@@ -686,18 +699,37 @@ struct SettingsView: View {
                     }
                     .buttonStyle(.plain)
                 }
-                .padding(20)
+                .padding(.horizontal, 20)
+                .padding(.top, 20)
+                .padding(.bottom, 16)
 
                 ScrollView(showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: 20) {
-                        // Auto Refresh Section
-                        InfoSection(title: "Auto Refresh", icon: "clock.arrow.circlepath") {
-                            VStack(alignment: .leading, spacing: 16) {
-                                Text("Refresh Interval")
-                                    .font(.system(size: 12, weight: .medium))
-                                    .foregroundColor(.secondary)
+                    VStack(spacing: 16) {
+                        // Startup Section
+                        SettingsCard {
+                            VStack(alignment: .leading, spacing: 14) {
+                                SettingsHeader(title: "Startup", icon: "power")
 
-                                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
+                                Toggle(isOn: $usageManager.launchAtLogin) {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text("Launch at Login")
+                                            .font(.system(size: 13, weight: .medium))
+                                            .foregroundColor(.primary)
+                                        Text("Start app when you log in")
+                                            .font(.system(size: 11))
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
+                                .toggleStyle(SwitchToggleStyle(tint: Color(hex: "8b5cf6")))
+                            }
+                        }
+
+                        // Auto Refresh Section
+                        SettingsCard {
+                            VStack(alignment: .leading, spacing: 14) {
+                                SettingsHeader(title: "Auto Refresh", icon: "clock.arrow.circlepath")
+
+                                LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 8) {
                                     ForEach(intervalOptions, id: \.1) { option in
                                         IntervalButton(
                                             title: option.0,
@@ -709,31 +741,22 @@ struct SettingsView: View {
                             }
                         }
 
-                        // On Open Section
-                        InfoSection(title: "Behavior", icon: "cursorarrow.click.2") {
-                            Toggle(isOn: $usageManager.refreshOnOpen) {
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("Refresh on Open")
-                                        .font(.system(size: 13, weight: .medium))
-                                    Text("Fetch new data when popup opens")
-                                        .font(.system(size: 11))
-                                        .foregroundColor(.secondary)
-                                }
-                            }
-                            .toggleStyle(SwitchToggleStyle(tint: Color(hex: "8b5cf6")))
-                        }
+                        // Behavior Section
+                        SettingsCard {
+                            VStack(alignment: .leading, spacing: 14) {
+                                SettingsHeader(title: "Behavior", icon: "cursorarrow.click.2")
 
-                        // Current Status
-                        InfoSection(title: "Status", icon: "info.circle") {
-                            VStack(alignment: .leading, spacing: 8) {
-                                InfoDetailRow(
-                                    label: "Current Interval",
-                                    value: intervalOptions.first { $0.1 == usageManager.refreshInterval }?.0 ?? "Unknown"
-                                )
-                                InfoDetailRow(
-                                    label: "Refresh on Open",
-                                    value: usageManager.refreshOnOpen ? "Enabled" : "Disabled"
-                                )
+                                Toggle(isOn: $usageManager.refreshOnOpen) {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text("Refresh on Open")
+                                            .font(.system(size: 13, weight: .medium))
+                                            .foregroundColor(.primary)
+                                        Text("Fetch new data when popup opens")
+                                            .font(.system(size: 11))
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
+                                .toggleStyle(SwitchToggleStyle(tint: Color(hex: "8b5cf6")))
                             }
                         }
                     }
@@ -742,7 +765,83 @@ struct SettingsView: View {
                 }
             }
         }
-        .frame(width: 360, height: 420)
+        .frame(width: 340, height: 400)
+    }
+
+    var settingsBackground: some View {
+        ZStack {
+            (colorScheme == .dark ? Color(hex: "1a1a2e") : Color(hex: "f0f0f5"))
+                .opacity(0.95)
+
+            VisualEffectBlur(material: .hudWindow, blendingMode: .behindWindow)
+                .opacity(0.2)
+
+            // Subtle gradient orbs
+            GeometryReader { geometry in
+                ZStack {
+                    Circle()
+                        .fill(
+                            RadialGradient(
+                                colors: [Color.purple.opacity(0.1), Color.clear],
+                                center: .center,
+                                startRadius: 0,
+                                endRadius: 100
+                            )
+                        )
+                        .frame(width: 200, height: 200)
+                        .offset(x: -50, y: -30)
+                        .blur(radius: 40)
+
+                    Circle()
+                        .fill(
+                            RadialGradient(
+                                colors: [Color.blue.opacity(0.08), Color.clear],
+                                center: .center,
+                                startRadius: 0,
+                                endRadius: 100
+                            )
+                        )
+                        .frame(width: 180, height: 180)
+                        .offset(x: 80, y: 150)
+                        .blur(radius: 35)
+                }
+            }
+        }
+    }
+}
+
+struct SettingsHeader: View {
+    let title: String
+    let icon: String
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: icon)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundColor(Color(hex: "8b5cf6"))
+            Text(title)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundColor(.primary)
+        }
+    }
+}
+
+struct SettingsCard<Content: View>: View {
+    @Environment(\.colorScheme) var colorScheme
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        content
+            .padding(16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 14)
+                    .fill(colorScheme == .dark ? Color.white.opacity(0.05) : Color.white.opacity(0.7))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14)
+                            .stroke(Color.primary.opacity(0.08), lineWidth: 1)
+                    )
+            )
     }
 }
 
